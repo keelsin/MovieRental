@@ -1,4 +1,3 @@
-package rental;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -90,7 +89,7 @@ public class LogInUtils {
 	*/
 	
 	//Takes a username and password returns true if they belong to a valid user
-	public static boolean login(String username, String password)throws SQLException, ClassNotFoundException{
+	public static void login(String username, String password)throws SQLException, ClassNotFoundException{
 		
 		Connection conn = getConnection();
 		String getCustID = "SELECT customer_id FROM customer WHERE username = ?";
@@ -101,9 +100,10 @@ public class LogInUtils {
 		preparedCustID.setString(1, username);
 		
 		ResultSet rsCustomerID = preparedCustID.executeQuery();
-		String customerID = rsCustomerID.getString("customer_id");
 		
-		saltQuery.setString(1, customerID);		
+		String customerID = rsCustomerID.getString("customer_id");		
+		saltQuery.setString(1, customerID);			
+		
 		ResultSet rs = saltQuery.executeQuery();
 		// getting the salt code of the specified user
 		String salt = rs.getString("salted");		
@@ -120,17 +120,20 @@ public class LogInUtils {
 			String user = hashRS.getString("username");
 		
 		conn.close();
-		if(user.equals(username))
-			return true;
-		 
-		if(user.isEmpty())
-			return false;
+		if(user.equals(username)) {
+			CustomerUtilities.loginOptions(customerID);
 		}
-		return false;
+		if(user.isEmpty())
+			System.exit(0);
+		}
+		System.exit(0);
 	}
 	
+	
+	
 	//Prompts the user to input their login info, returns true if they are a valid user, false otherwise
-	public static boolean login() throws SQLException, ClassNotFoundException{
+	
+	/*public static boolean login() throws SQLException, ClassNotFoundException{
 		
 		String username = JOptionPane.showInputDialog("Enter your username: ");
 		String password = JOptionPane.showInputDialog("Enter your password: ");
@@ -138,14 +141,13 @@ public class LogInUtils {
 		boolean result = login(username, password);
 		
 		return result;
-	}			
-
+	}	
+	*/
 	//Helper Functions below:
 	//getConnection() - obtains a connection
 	//getSalt() - creates a randomly generated string 
 	//hash() - takes a password and a salt as input and then computes their hash
-	
-	
+		
 	//Creates a randomly generated String
 	public static String getSalt(){
 		return new BigInteger(140, random).toString(32);
