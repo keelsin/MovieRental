@@ -1,3 +1,4 @@
+package rental;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -15,15 +16,44 @@ public class LogInUtils {
 
 	private static SecureRandom random = new SecureRandom();
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		askForLogIn();
+	}
 	
+	public static void askForLogIn(){
+  		String username = JOptionPane.showInputDialog("Enter your oracle username: ");
+   		String password = JOptionPane.showInputDialog("Enter your password: ");
+   		
+   		try {
+			Connection conn = null;
+			conn = getConnection(username, password);
+			if(conn != null){		
+				// for login
+				// username & password is the ones in the database  to connect to our rental movies info
+				String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");
+		   		login(conn, customerUserName, customerPassword);			
+				
+				
+				// new user
+				/*String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");
+				
+				newUser(conn, customerUserName, customerPassword, "Reem", "5147894561");
+				*/
+			}
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 		
-	public static Connection getConnection() throws SQLException, ClassNotFoundException {
+	
+	public static Connection getConnection(String username, String password) throws SQLException, ClassNotFoundException {
 	   	try{
 	   		Class.forName("oracle.jdbc.driver.OracleDriver");
-	   		String username = JOptionPane.showInputDialog("Enter your oracle username: ");
-	   		String password = JOptionPane.showInputDialog("Enter your password: ");
+	 
 	   		Connection connection = DriverManager.getConnection(
 	   			"jdbc:oracle:thin:@198.168.52.73:1521:orad11g", username, password);
 	   		// ask the user for their username and password in this method so we dont have it written there
@@ -37,34 +67,30 @@ public class LogInUtils {
 	   		throw new ClassNotFoundException(cnf.getMessage());
 	   	}
 	}
-	
+
 	//Takes a username and password and creates and account for that user
-	public static void newUser(String username, String password, String fullName, String phoneNum) throws SQLException, ClassNotFoundException{
-		Connection conn = null;
-		
-			conn = getConnection();
+	// works as long as we dont initially populate the table from oracle!
+	public static void newUser(Connection conn, String username, String password, String fullName, String phoneNum) throws SQLException, ClassNotFoundException{	
 			String salt = getSalt();
-			String query = "INSERT INTO CUSTOMER VALUES(?,?,?,?,?)";
-			String maxCustIDString = "";
+			String query = "INSERT INTO CUSTOMER VALUES(?,?,?,?,?,?)";
 			byte[] hashedPassword = hash(password, salt);
 			
 			PreparedStatement preparedCustID = conn.prepareStatement("SELECT MAX(customer_id) FROM customer");
 
 			ResultSet rs = preparedCustID.executeQuery();
-			int maxCustID = rs.getInt("customer_id");
-			
+			rs.next();
+			int maxCustID = rs.getInt(1);
 			 // increment the current biggest customer ID to set it to the new customer
 			maxCustID++;
 			
-			maxCustIDString += maxCustID;
-						
 			PreparedStatement user = conn.prepareStatement(query);
 			
-			user.setString(1, maxCustIDString);
+			user.setInt(1, maxCustID);
 			user.setString(2, fullName);
 			user.setString(3, username);		
 			user.setBytes(4, hashedPassword);
-			user.setString(5, phoneNum);
+			user.setString(5,  salt);
+			user.setString(6, phoneNum);
 			
 			user.executeUpdate();
 			System.out.println("New user registered!");
@@ -89,9 +115,8 @@ public class LogInUtils {
 	*/
 	
 	//Takes a username and password returns true if they belong to a valid user
-	public static void login(String username, String password)throws SQLException, ClassNotFoundException{
+	public static void login(Connection conn, String username, String password)throws SQLException, ClassNotFoundException{
 		
-		Connection conn = getConnection();
 		String getCustID = "SELECT customer_id FROM customer WHERE username = ?";
 		String hashedPWDQuery = "SELECT salted FROM CUSTOMER WHERE customer_id = ? ";
 		
@@ -100,12 +125,13 @@ public class LogInUtils {
 		preparedCustID.setString(1, username);
 		
 		ResultSet rsCustomerID = preparedCustID.executeQuery();
-		
+		rsCustomerID.next();
 		String customerID = rsCustomerID.getString("customer_id");		
 		saltQuery.setString(1, customerID);			
 		
 		ResultSet rs = saltQuery.executeQuery();
 		// getting the salt code of the specified user
+		rs.next();
 		String salt = rs.getString("salted");		
 		// hashing the password using the same salt code
 		byte[] hashed = hash(password, salt);
@@ -121,7 +147,7 @@ public class LogInUtils {
 		
 		conn.close();
 		if(user.equals(username)) {
-			CustomerUtilities.loginOptions(customerID);
+			CustomerUtilities.loginOptions(conn, customerID);
 		}
 		if(user.isEmpty())
 			System.exit(0);

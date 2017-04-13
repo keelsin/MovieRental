@@ -1,40 +1,41 @@
+package rental;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.Scanner;
 
 public class CustomerUtilities {
 
-	public static void loginOptions(String customerId){
+	public static void loginOptions(Connection conn, String customerId){
 
 		Scanner read = new Scanner(System.in);
 		System.out.println("Please enter the number for the desired option:");
-		System.out.println("1 - Movie search. \n2 - View your list of rented movies. \n3 Renew a rented movie's due date. \n4 - View a list of recommended movies.");
+		System.out.println("1 - Movie search. \n2 - View your list of rented movies. \n3 - Renew a rented movie's due date. \n4 - View a list of recommended movies.");
 
 		while(read.nextBoolean()){
 			int userChoice = read.nextInt();
-			loginOptions(userChoice, customerId);
+			loginOptions(conn, userChoice, customerId);
 		}
 
 	}
 
-	public static void loginOptions(int choice, String customerId) {
+	public static void loginOptions(Connection conn, int choice, String customerId) {
 		switch(choice) {
 		case 1:	// call movie search method 
 			break;
 		case 2: // method call to the listing of rented movies 
-			ViewList(customerId);
+			ViewList(conn, customerId);
 			break;
 		case 3: // method call to renew the movie
+			RenewMovie(conn, customerId);
 			break;
 		case 4: // method call to view the recommended movies	
 			break;
 		}
 	}
-	public static void ViewList(String custID) {
-
-		Connection conn;
+	public static void ViewList(Connection conn, String custID) {
 
 		try {
-			conn = LogInUtils.getConnection();
+
 			
 			String CustIDSQL = "SELECT movie_id FROM rental WHERE customer_id = ? AND returned = 0";
 
@@ -57,20 +58,18 @@ public class CustomerUtilities {
 				System.out.println("Movie Title:\t" + movieTitle + "\tDue Date:\t" + due_date + "\tMovie ID:\t" + movieID);
 					
 			}
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 	
-	public static void RenewMovie(String custID){
-		ViewList(custID);
+	public static void RenewMovie(Connection conn, String custID){
+		ViewList(conn, custID);
 		System.out.println("Please enter the movie ID that you would like to renew");
 		Scanner read = new Scanner(System.in);
-		Connection conn;
 		try {
-			conn = LogInUtils.getConnection();
 		
 			while(read.hasNext()){
 				String movieID = read.next();
@@ -82,19 +81,24 @@ public class CustomerUtilities {
 				
 				// get the result set of the movie that the user picked
 				ResultSet dueDateRs = preparedDueDate.executeQuery();
+				
+				Calendar dueDateCal = Calendar.getInstance();
 				// get the due date of that movie
 				Date dueDate = dueDateRs.getDate("due_date");
+		
+				dueDateCal.setTime(dueDate); 
 				
-				// set that due date to be 3 weeks later		
-				//	dueDate.getDate();
-				
+				// set that due date to be 3 weeks later						
+				 dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
+				 Date newDueDate = (Date) dueDateCal.getTime();
+			
 				// update the due date
-				preparedUpdateDueDate.setDate(1, dueDate);
+				preparedUpdateDueDate.setDate(1, newDueDate);
 				preparedUpdateDueDate.executeUpdate();
 				
 			}			
 			
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
