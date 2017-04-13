@@ -10,10 +10,11 @@ public class CustomerUtilities {
 		Scanner read = new Scanner(System.in);
 		System.out.println("Please enter the number for the desired option:");
 		System.out.println("1 - Movie search. \n2 - View your list of rented movies. \n3 - Renew a rented movie's due date. \n4 - View a list of recommended movies.");
-
-		while(read.nextBoolean()){
-			int userChoice = read.nextInt();
-			loginOptions(conn, userChoice, customerId);
+		int userChoice = read.nextInt();
+		loginOptions(conn, userChoice, customerId);
+		if(read.hasNext()){
+			 userChoice = read.nextInt();
+			 loginOptions(conn, userChoice, customerId);
 		}
 
 	}
@@ -24,7 +25,7 @@ public class CustomerUtilities {
 			break;
 		case 2: // method call to the listing of rented movies 
 			ViewList(conn, customerId);
-			break;
+			break; 
 		case 3: // method call to renew the movie
 			RenewMovie(conn, customerId);
 			break;
@@ -37,7 +38,7 @@ public class CustomerUtilities {
 		try {
 
 			
-			String CustIDSQL = "SELECT movie_id FROM rental WHERE customer_id = ? AND returned = 0";
+			String CustIDSQL = "SELECT movie_id, due_date FROM rental WHERE customer_id = ? AND returned = 0";
 
 			PreparedStatement preparedCustID = conn.prepareStatement(CustIDSQL);
 			preparedCustID.setString(1, custID);
@@ -53,9 +54,11 @@ public class CustomerUtilities {
 				preparedMovieID.setString(1, movieID);
 
 				ResultSet movieTitleRs = preparedMovieID.executeQuery();
+				movieTitleRs.next();
 				String movieTitle = movieTitleRs.getString("title");
 				// not sure
-				System.out.println("Movie Title:\t" + movieTitle + "\tDue Date:\t" + due_date + "\tMovie ID:\t" + movieID);
+				System.out.println("Your rent list:");
+				System.out.println("Movie ID:\t" + movieID+ "\nMovie Title:\t" + movieTitle +  "\nDue Date:\t" + due_date);
 					
 			}
 		} catch (SQLException e) {
@@ -83,19 +86,28 @@ public class CustomerUtilities {
 				ResultSet dueDateRs = preparedDueDate.executeQuery();
 				
 				Calendar dueDateCal = Calendar.getInstance();
+				dueDateRs.next();
 				// get the due date of that movie
+	
 				Date dueDate = dueDateRs.getDate("due_date");
 		
-				dueDateCal.setTime(dueDate); 
-				
+				 dueDateCal.setTime(dueDate); 
+
 				// set that due date to be 3 weeks later						
-				 dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
-				 Date newDueDate = (Date) dueDateCal.getTime();
+				// dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
+				// date.get(1) --> 2017
+				// date.get(2) --> 2 (march) 
+				// date.get(3) --> 16 (day of month)
+				 System.out.println(dueDateCal.getTime());
+				 System.out.println(dueDateCal.get(3));
+				 
+				// Date newDueDate = dueDateCal.getTime();
 			
 				// update the due date
-				preparedUpdateDueDate.setDate(1, newDueDate);
+			/*	preparedUpdateDueDate.setDate(1, newDueDate);
 				preparedUpdateDueDate.executeUpdate();
-				
+				System.out.println("Your due date has been renew!");
+				*/
 			}			
 			
 		} catch (SQLException e) {

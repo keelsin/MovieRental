@@ -21,12 +21,12 @@ public class LogInUtils {
 	}
 	
 	public static void askForLogIn(){
-  		String username = JOptionPane.showInputDialog("Enter your oracle username: ");
-   		String password = JOptionPane.showInputDialog("Enter your password: ");
+  	//	String username = JOptionPane.showInputDialog("Enter your oracle username: ");
+   		//String password = JOptionPane.showInputDialog("Enter your password: ");
    		
    		try {
 			Connection conn = null;
-			conn = getConnection(username, password);
+			conn = getConnection("A1537595", "database2");
 			if(conn != null){		
 				// for login
 				// username & password is the ones in the database  to connect to our rental movies info
@@ -116,44 +116,48 @@ public class LogInUtils {
 	
 	//Takes a username and password returns true if they belong to a valid user
 	public static void login(Connection conn, String username, String password)throws SQLException, ClassNotFoundException{
-		
-		String getCustID = "SELECT customer_id FROM customer WHERE username = ?";
-		String hashedPWDQuery = "SELECT salted FROM CUSTOMER WHERE customer_id = ? ";
-		
-		PreparedStatement saltQuery = conn.prepareStatement(hashedPWDQuery);
-		PreparedStatement preparedCustID = conn.prepareStatement(getCustID);
-		preparedCustID.setString(1, username);
-		
-		ResultSet rsCustomerID = preparedCustID.executeQuery();
-		rsCustomerID.next();
-		String customerID = rsCustomerID.getString("customer_id");		
-		saltQuery.setString(1, customerID);			
-		
-		ResultSet rs = saltQuery.executeQuery();
-		// getting the salt code of the specified user
-		rs.next();
-		String salt = rs.getString("salted");		
-		// hashing the password using the same salt code
-		byte[] hashed = hash(password, salt);
-		
-		// select user with the matching hashed password
-		String checkQuery = "SELECT username FROM customer WHERE pswrd = ? ";
-		
-		PreparedStatement hashQuery = conn.prepareStatement(checkQuery);
-		hashQuery.setBytes(1, hashed);
-		ResultSet hashRS = hashQuery.executeQuery();
-		while(hashRS.next()){	
-			String user = hashRS.getString("username");
-		
-		conn.close();
-		if(user.equals(username)) {
-			CustomerUtilities.loginOptions(conn, customerID);
+		try {
+			String getCustID = "SELECT customer_id FROM customer WHERE username = ?";
+			String hashedPWDQuery = "SELECT salted FROM CUSTOMER WHERE customer_id = ? ";
+			
+			PreparedStatement saltQuery = conn.prepareStatement(hashedPWDQuery);
+			PreparedStatement preparedCustID = conn.prepareStatement(getCustID);
+			preparedCustID.setString(1, username);
+			
+			ResultSet rsCustomerID = preparedCustID.executeQuery();
+			rsCustomerID.next();
+			String customerID = rsCustomerID.getString("customer_id");		
+			saltQuery.setString(1, customerID);			
+			
+			ResultSet rs = saltQuery.executeQuery();
+			// getting the salt code of the specified user
+			rs.next();
+			String salt = rs.getString("salted");		
+			// hashing the password using the same salt code
+			byte[] hashed = hash(password, salt);
+			
+			// select user with the matching hashed password
+			String checkQuery = "SELECT username FROM customer WHERE pswrd = ? ";
+			
+			PreparedStatement hashQuery = conn.prepareStatement(checkQuery);
+			hashQuery.setBytes(1, hashed);
+			ResultSet hashRS = hashQuery.executeQuery();
+			while(hashRS.next()){	
+				String user = hashRS.getString("username");
+			
+				if(user.equals(username)) 
+					CustomerUtilities.loginOptions(conn, customerID);
+				
+				else if(user.isEmpty()) 
+				//System.exit(0);
+					System.out.println("Log in failed! Incorrect username or password");
+				}
+			} catch (SQLException e){
+				System.out.println("Cannot find username!");						
+			}
 		}
-		if(user.isEmpty())
-			System.exit(0);
-		}
-		System.exit(0);
-	}
+	
+		//System.exit(0);
 	
 	
 	

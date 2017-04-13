@@ -1,4 +1,4 @@
-package rental;
+/*package rental;
 import java.awt.EventQueue;
 import java.sql.*;
 
@@ -17,7 +17,7 @@ public class Frame1 {
 
 	/**
 	 * Launch the application.
-	 */
+	 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -38,7 +38,7 @@ public class Frame1 {
 	 * Create the application.
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
-	 */
+	 
 	public Frame1() throws ClassNotFoundException, SQLException {
 		initialize();
 		con = LogInUtils.getConnection();
@@ -46,7 +46,7 @@ public class Frame1 {
 
 	/**
 	 * Initialize the contents of the frame.
-	 */
+	 
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
@@ -83,7 +83,7 @@ public class Frame1 {
 		frame.getContentPane().add(lblLogIn);
 		
 		JButton btnLogIn = new JButton("Log in");
-		/*Working on the login method!!!!!!*/
+		/*Working on the login method!!!!!!
 		btnLogIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -106,3 +106,4 @@ public class Frame1 {
 		textUsername.setColumns(10);
 	}
 }
+*/
