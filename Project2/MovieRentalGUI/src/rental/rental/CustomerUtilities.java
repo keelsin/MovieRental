@@ -36,6 +36,8 @@ public class CustomerUtilities {
 		}
 	}
 	
+	// this is the browse for employees since thats what i had to do 
+	// but should be the same for customers which is what roan had to do 
 	public static void BrowseMovie(Connection conn, String custID){
 		// i dont think u need customer id 
 		try {
