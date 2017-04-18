@@ -38,7 +38,7 @@ public class CustomerUtilities {
 	
 	// this is the browse for employees since thats what i had to do 
 	// but should be the same for customers which is what roan had to do 
-	public static void BrowseMovie(Connection conn, String custID){
+	/*public static void BrowseMovie(Connection conn, String custID){
 		// i dont think u need customer id 
 		try {
 			
@@ -49,7 +49,7 @@ public class CustomerUtilities {
 		}
 		
 		
-	}
+	}*/
 		
 	public static void ViewList(Connection conn, String custID) {
 
@@ -154,7 +154,26 @@ public class CustomerUtilities {
 					System.out.println("The title is\t "+ results.getString("title"));
 				}
 			}else{
-				
+				//If you have not previously recommended a movie then it will recommend a movie that has the most stock
+				//If you have rented before it will recommend a movie that you have not seen in the category you rent the most from
+				String recommendedMovies = "SELECT title FROM movie WHERE category = "
+						 + "(SELECT category FROM rental JOIN movie using(movie_id) group by category HAVING count(category) = "
+						   + "(SELECT MAX(num) FROM (SELECT count(category) as num FROM movie JOIN rental using(movie_id) WHERE customer_id = ? group by category))) "
+						 + "MINUS "
+						 + "SELECT title FROM rental JOIN movie using(movie_id) WHERE category = "
+						 + "(SELECT category as genre FROM rental JOIN movie using(movie_id) group by category HAVING count(category) = "
+						  +  "(SELECT MAX(num) FROM (SELECT count(category) as num FROM movie JOIN rental using(movie_id) WHERE customer_id = ? "
+						     + "group by category)))";
+				PreparedStatement recommends = conn.prepareStatement(recommendedMovies);
+				recommends.setString(1, customerId);
+				recommends.setString(2, customerId);
+				ResultSet results = recommends.executeQuery();
+				if(!results.next())
+					System.out.print("There are no movies to recommend, you must be a true movie connoisseur!");
+				else
+				do{
+					System.out.println("The title is\t "+ results.getString("title"));
+				}while(results.next());
 			}
 			
 		} catch(SQLException e){
