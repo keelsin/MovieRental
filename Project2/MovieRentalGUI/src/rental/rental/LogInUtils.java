@@ -30,17 +30,17 @@ public class LogInUtils {
 			if(conn != null){		
 				// for login
 				// username & password is the ones in the database  to connect to our rental movies info
-			/*	String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+				String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
 		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");
 		   		login(conn, customerUserName, customerPassword);			
-				*/
+				
 				
 				// new user
-				String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+				/*String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
 		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");		   		
 				
 				newUser(conn, customerUserName, customerPassword, "Reem", "5147894561");
-				
+				*/
 			}
 			
 		} catch (ClassNotFoundException | SQLException e) {

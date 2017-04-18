@@ -36,6 +36,19 @@ public class CustomerUtilities {
 		}
 	}
 	
+	public static void BrowseMovie(Connection conn, String custID){
+		// i dont think u need customer id 
+		try {
+			
+						
+			
+		} catch (SQLException e){
+			e.getMessage();
+		}
+		
+		
+	}
+		
 	public static void ViewList(Connection conn, String custID) {
 
 		try {
@@ -96,11 +109,9 @@ public class CustomerUtilities {
 				Date dueDate = dueDateRs.getDate("due_date");
 				
 				 dueDateCal.setTime(dueDate); 
-
-				 System.out.println(today.DAY_OF_MONTH - dueDateCal.DAY_OF_MONTH);
 				 
 				// set that due date to be 3 weeks later						
-				/* dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
+				 dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
 			 			 
 				 System.out.println(dueDateCal.getTime());				 
 				 java.sql.Date newSqlDueDate = new java.sql.Date(dueDateCal.getTimeInMillis());
@@ -109,8 +120,7 @@ public class CustomerUtilities {
 				preparedUpdateDueDate.setDate(1, newSqlDueDate);
 				preparedUpdateDueDate.executeUpdate();
 				System.out.println("Your due date has been renew!");
-				System.out.println("New due date:\t" + newSqlDueDate);
-				*/
+				System.out.println("New due date:\t" + newSqlDueDate);				
 			}			
 			
 		} catch (SQLException e) {
