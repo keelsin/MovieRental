@@ -30,9 +30,40 @@ public class CustomerUtilities {
 			RenewMovie(conn, customerId);
 			break;
 		case 4: // method call to view the recommended movies	
+			Recommends(conn, customerId);
 			break;
 		}
 	}
+	
+	private static void Recommends(Connection conn, String customerId) {
+		try{
+			String CountSQL = "SELECT count(title) FROM rental WHERE customer_id = ?";
+			
+			PreparedStatement countRentals = conn.prepareStatement(CountSQL);
+			countRentals.setString(1, customerId);
+			
+			ResultSet rs = countRentals.executeQuery();
+			int count = rs.getInt("count(title)");
+			
+			//If the customer has not rented a movie we will recommend him a movie from a category with the most stock
+			if (count == 0){
+				String recommendedMovies = "SELECT title FROM movie WHERE category = "
+						+ "(SELECT category FROM movie group by category HAVING count(category) = "
+						+ "(SELECT MAX(num) FROM(SELECT count(category) AS num FROM movie group by category)));";
+				PreparedStatement recommends = conn.prepareStatement(recommendedMovies);
+				ResultSet results = recommends.executeQuery();
+				while(results.next()){
+					System.out.println("the title is\t "+ results.getString("title"));
+				}
+				
+			}
+			
+		} catch(SQLException e){
+			
+		}
+		
+	}
+	
 	public static void ViewList(Connection conn, String custID) {
 
 		try {
