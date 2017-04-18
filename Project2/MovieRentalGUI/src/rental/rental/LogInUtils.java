@@ -26,7 +26,7 @@ public class LogInUtils {
    		
    		try {
 			Connection conn = null;
-			conn = getConnection("A1537595", "database2");
+			conn = getConnection("A1010290", "password123");
 			if(conn != null){		
 				// for login
 				// username & password is the ones in the database  to connect to our rental movies info

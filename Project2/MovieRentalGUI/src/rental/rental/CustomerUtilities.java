@@ -23,6 +23,7 @@ public class CustomerUtilities {
 		switch(choice) {
 		case 1:	// call movie search method 
 			break;
+			
 		case 2: // method call to the listing of rented movies 
 			ViewList(conn, customerId);
 			break; 
@@ -36,30 +37,33 @@ public class CustomerUtilities {
 	}
 	
 	private static void Recommends(Connection conn, String customerId) {
+		
 		try{
-			String CountSQL = "SELECT count(title) FROM rental WHERE customer_id = ?";
+			String CountSQL = "SELECT count(movie_id) FROM rental WHERE customer_id = ?";
 			
 			PreparedStatement countRentals = conn.prepareStatement(CountSQL);
 			countRentals.setString(1, customerId);
 			
 			ResultSet rs = countRentals.executeQuery();
-			int count = rs.getInt("count(title)");
+			rs.next();
+			int count = rs.getInt("count(movie_id)");
 			
 			//If the customer has not rented a movie we will recommend him a movie from a category with the most stock
 			if (count == 0){
-				String recommendedMovies = "SELECT title FROM movie WHERE category = "
-						+ "(SELECT category FROM movie group by category HAVING count(category) = "
-						+ "(SELECT MAX(num) FROM(SELECT count(category) AS num FROM movie group by category)));";
+				String recommendedMovies = "SELECT title FROM movie WHERE category="
+						+ "(SELECT category FROM movie group by category HAVING count(category)="
+						+ "(SELECT MAX(num) FROM(SELECT count(category) AS num FROM movie group by category)))";
 				PreparedStatement recommends = conn.prepareStatement(recommendedMovies);
 				ResultSet results = recommends.executeQuery();
 				while(results.next()){
-					System.out.println("the title is\t "+ results.getString("title"));
+					System.out.println("The title is\t "+ results.getString("title"));
 				}
+			}else{
 				
 			}
 			
 		} catch(SQLException e){
-			
+			e.printStackTrace();
 		}
 		
 	}
