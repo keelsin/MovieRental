@@ -36,38 +36,6 @@ public class CustomerUtilities {
 		}
 	}
 	
-	private static void Recommends(Connection conn, String customerId) {
-		
-		try{
-			String CountSQL = "SELECT count(movie_id) FROM rental WHERE customer_id = ?";
-			
-			PreparedStatement countRentals = conn.prepareStatement(CountSQL);
-			countRentals.setString(1, customerId);
-			
-			ResultSet rs = countRentals.executeQuery();
-			rs.next();
-			int count = rs.getInt("count(movie_id)");
-			
-			//If the customer has not rented a movie we will recommend him a movie from a category with the most stock
-			if (count == 0){
-				String recommendedMovies = "SELECT title FROM movie WHERE category="
-						+ "(SELECT category FROM movie group by category HAVING count(category)="
-						+ "(SELECT MAX(num) FROM(SELECT count(category) AS num FROM movie group by category)))";
-				PreparedStatement recommends = conn.prepareStatement(recommendedMovies);
-				ResultSet results = recommends.executeQuery();
-				while(results.next()){
-					System.out.println("The title is\t "+ results.getString("title"));
-				}
-			}else{
-				
-			}
-			
-		} catch(SQLException e){
-			e.printStackTrace();
-		}
-		
-	}
-	
 	public static void ViewList(Connection conn, String custID) {
 
 		try {
@@ -120,28 +88,28 @@ public class CustomerUtilities {
 				// get the result set of the movie that the user picked
 				ResultSet dueDateRs = preparedDueDate.executeQuery();
 				
+				Calendar today = Calendar.getInstance();
 				Calendar dueDateCal = Calendar.getInstance();
 				dueDateRs.next();
 				// get the due date of that movie
 	
 				Date dueDate = dueDateRs.getDate("due_date");
-		
+				
 				 dueDateCal.setTime(dueDate); 
 
-				// set that due date to be 3 weeks later						
-				// dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
-				// date.get(1) --> 2017
-				// date.get(2) --> 2 (march) 
-				// date.get(3) --> 16 (day of month)
-				 System.out.println(dueDateCal.getTime());
-				 System.out.println(dueDateCal.get(3));
+				 System.out.println(today.DAY_OF_MONTH - dueDateCal.DAY_OF_MONTH);
 				 
-				// Date newDueDate = dueDateCal.getTime();
-			
+				// set that due date to be 3 weeks later						
+				/* dueDateCal.add(dueDateCal.DAY_OF_MONTH, 21);
+			 			 
+				 System.out.println(dueDateCal.getTime());				 
+				 java.sql.Date newSqlDueDate = new java.sql.Date(dueDateCal.getTimeInMillis());
+		
 				// update the due date
-			/*	preparedUpdateDueDate.setDate(1, newDueDate);
+				preparedUpdateDueDate.setDate(1, newSqlDueDate);
 				preparedUpdateDueDate.executeUpdate();
 				System.out.println("Your due date has been renew!");
+				System.out.println("New due date:\t" + newSqlDueDate);
 				*/
 			}			
 			
@@ -150,6 +118,39 @@ public class CustomerUtilities {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void Recommends(Connection conn, String customerId) {
+		
+		try{
+			String CountSQL = "SELECT count(movie_id) FROM rental WHERE customer_id = ?";
+			
+			PreparedStatement countRentals = conn.prepareStatement(CountSQL);
+			countRentals.setString(1, customerId);
+			
+			ResultSet rs = countRentals.executeQuery();
+			rs.next();
+			int count = rs.getInt("count(movie_id)");
+			
+			//If the customer has not rented a movie we will recommend him a movie from a category with the most stock
+			if (count == 0){
+				String recommendedMovies = "SELECT title FROM movie WHERE category="
+						+ "(SELECT category FROM movie group by category HAVING count(category)="
+						+ "(SELECT MAX(num) FROM(SELECT count(category) AS num FROM movie group by category)))";
+				PreparedStatement recommends = conn.prepareStatement(recommendedMovies);
+				ResultSet results = recommends.executeQuery();
+				while(results.next()){
+					System.out.println("The title is\t "+ results.getString("title"));
+				}
+			}else{
+				
+			}
+			
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	
 	
