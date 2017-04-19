@@ -44,42 +44,76 @@ public class CustomerUtilities {
 	// but should be the same for customers which is what roan had to do 
 	public static void BrowseMovie(Connection conn, String custID){
 		// i dont think u need customer id 
-		System.out.println("Please enter a title, category or any actor name");
-		Scanner read = new Scanner(System.in);
+		String title;
+		String movieID;
+		int quantity;
+		
+		System.out.println("Please enter a title, category or any actor's full name");
+		Scanner read = new Scanner(System.in);		
 		try {
 			while(read.hasNext()){
-			String search = read.next();
-			
-			String browseQuery = "SELECT title, movie_id FROM movie WHERE title =" + "'" + search + "'" ;
-			PreparedStatement preparedBrowse = conn.prepareStatement(browseQuery);
-			
-			ResultSet rs = preparedBrowse.executeQuery();
+				String search = read.nextLine();
 
-			if(!rs.next()){
-				System.out.println("hello");
-				String browseCategoryQuery = "SELECT title, movie_id FROM movie WHERE category =" + "'" + search + "'" ;
-				PreparedStatement preparedCategoryBrowse = conn.prepareStatement(browseCategoryQuery);
-				
-				ResultSet rsCategory = preparedCategoryBrowse.executeQuery();
-				
-				if(!rsCategory.next()){
-					String browseActorQuery = "SELECT title, movie_id FROM movie WHERE category =" + "'" + search + "'" ;
-					PreparedStatement preparedActorBrowse = conn.prepareStatement(browseActorQuery);
+				// always upper case the user input just to make sure
+				search = search.toUpperCase();
+				String browseQuery = "SELECT title, movie_id, available_quantity FROM movie WHERE title = " + "'" + search + "'" ;
+				PreparedStatement preparedBrowse = conn.prepareStatement(browseQuery);
+
+				ResultSet rs = preparedBrowse.executeQuery();
+				// using the user input as a title, if theres no result 
+				// it will check whether the user input is a category 
+				if(!rs.isBeforeFirst()){
+					String browseCategoryQuery = "SELECT title, movie_id, available_quantity FROM movie WHERE category = " + "'" + search + "'" ;
+					PreparedStatement preparedCategoryBrowse = conn.prepareStatement(browseCategoryQuery);
+
+					ResultSet rsCategory = preparedCategoryBrowse.executeQuery();
+					// if not a category, then check if its a movie actor
+					if(!rsCategory.isBeforeFirst()){
+						String browseActorQuery = "SELECT m.title, m.movie_id, m.available_quantity FROM movie m "
+												+ "LEFT JOIN movie_actor ma ON m.movie_id = ma.movie_id "
+												+ "LEFT JOIN actor a ON ma.actor_id = a.actor_id "
+												+ "WHERE a.name =" + "'" + search + "'" ;
+						
+						PreparedStatement preparedActorBrowse = conn.prepareStatement(browseActorQuery);
 					
-					ResultSet rsActor = preparedCategoryBrowse.executeQuery();
-					
-					if(!rsActor.next())
-						System.out.println("Sorry! Nothing was found.\nPlease try again!");
+						ResultSet rsActor = preparedActorBrowse.executeQuery();
+						rsActor.next();
+						System.out.println(rsActor.getString("title"));
+						if(!rsActor.isBeforeFirst()) {
+							System.out.println("Sorry! Nothing was found.\nPlease try again!" + "\n");
+
+						} else {	
+							while(rsActor.next()){
+							title = rsActor.getString("title");
+							movieID = rsActor.getString("movie_id");
+							quantity = rsActor.getInt("available_quantity");
+							System.out.println("Movie Title:\t" + title + "\nMovie ID:\t" + movieID + "\nAvailable Quantity:\t" + quantity);
+							}
+						}
+					} else {
+						while(rsCategory.next()){
+						title = rsCategory.getString("title");
+						movieID = rsCategory.getString("movie_id");
+						quantity = rsCategory.getInt("available_quantity");
+						System.out.println("Movie Title:\t" + title + "\nMovie ID:\t" + movieID + "\nAvailable Quantity:\t" + quantity);
+						}
+						
+					}		
+				} else {
+					while(rs.next()){
+					title = rs.getString("title");
+					movieID = rs.getString("movie_id");
+					quantity = rs.getInt("available_quantity");
+					System.out.println("Movie Title:\t" + title + "\nMovie ID:\t" + movieID + "\nAvailable Quantity:\t" + quantity);
+					}
 				}
-				
-			} else {
-				System.out.println(rs.getString(1));
-			}
-			
+
 			}
 
 		} catch (SQLException e){
-			e.printStackTrace();
+			if(e.getMessage().equals("Exhausted Resultset")){
+				System.out.println("Sorry! Nothing was found.\nPlease try again!" + "\n");
+			}
 		}
 
 
@@ -257,27 +291,27 @@ public class CustomerUtilities {
 
 				//System.out.println("rental id\t" + rentalId +"\nmovieID\t" + movieID + "\ncustomerID\t" + 
 				//					custID +"\ndueDate\t" + dueDate.toString() + "\ntoday\t" + todaySQL.toString());
-				
+
 				preparedInsert.executeUpdate();
 				System.out.println("hello again!");
 				//  INSERT a row in the delivery table using the same rental id  
-				
+
 				String insertDelivery = "INSERT INTO delivery VALUES(?,?,?)";
-				
+
 				PreparedStatement preparedInDeliv = conn.prepareStatement(insertDelivery);
 				// not sure
 				PreparedStatement preparedCarID = conn.prepareStatement("SELECT MAX(car_id) FROM car");
 				ResultSet carIdRS = preparedCarID.executeQuery();
-				
+
 				int carId = carIdRS.getInt(1);
 				carId++;
-				
+
 				preparedInDeliv.setString(1, custID);
 				preparedInDeliv.setInt(2, carId);
 				preparedInDeliv.setInt(3, rentalId);
-				
+
 				preparedInDeliv.executeUpdate();
-				
+
 				System.out.println("Thank you for renting!");
 				System.out.println("Your delivery will be coming shortly!");
 				System.out.println("Due date for the movie:\t" + movieID + "\twill be on:\t" + dueDate.getTime());

@@ -153,7 +153,8 @@ public class LogInUtils {
 					System.out.println("Log in failed! Incorrect username or password");
 				}
 			} catch (SQLException e){
-				System.out.println("Cannot find username!");						
+				if(e.getMessage().equals("Exhausted Resultset"))
+					System.out.println("Cannot find username!");						
 			}
 		}
 	
