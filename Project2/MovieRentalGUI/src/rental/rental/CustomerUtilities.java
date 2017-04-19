@@ -23,6 +23,7 @@ public class CustomerUtilities {
 	public static void loginOptions(Connection conn, int choice, String customerId) {
 		switch(choice) {
 		case 1:	// call movie search method 
+			BrowseMovie(conn, customerId);
 			break;
 
 		case 2: // method call to the listing of rented movies 
@@ -43,14 +44,42 @@ public class CustomerUtilities {
 	// but should be the same for customers which is what roan had to do 
 	public static void BrowseMovie(Connection conn, String custID){
 		// i dont think u need customer id 
+		System.out.println("Please enter a title, category or any actor name");
+		Scanner read = new Scanner(System.in);
 		try {
-			String browseQuery = "";
+			while(read.hasNext()){
+			String search = read.next();
 			
+			String browseQuery = "SELECT title, movie_id FROM movie WHERE title =" + "'" + search + "'" ;
 			PreparedStatement preparedBrowse = conn.prepareStatement(browseQuery);
+			
+			ResultSet rs = preparedBrowse.executeQuery();
 
+			if(!rs.next()){
+				System.out.println("hello");
+				String browseCategoryQuery = "SELECT title, movie_id FROM movie WHERE category =" + "'" + search + "'" ;
+				PreparedStatement preparedCategoryBrowse = conn.prepareStatement(browseCategoryQuery);
+				
+				ResultSet rsCategory = preparedCategoryBrowse.executeQuery();
+				
+				if(!rsCategory.next()){
+					String browseActorQuery = "SELECT title, movie_id FROM movie WHERE category =" + "'" + search + "'" ;
+					PreparedStatement preparedActorBrowse = conn.prepareStatement(browseActorQuery);
+					
+					ResultSet rsActor = preparedCategoryBrowse.executeQuery();
+					
+					if(!rsActor.next())
+						System.out.println("Sorry! Nothing was found.\nPlease try again!");
+				}
+				
+			} else {
+				System.out.println(rs.getString(1));
+			}
+			
+			}
 
 		} catch (SQLException e){
-			e.getMessage();
+			e.printStackTrace();
 		}
 
 
