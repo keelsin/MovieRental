@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry excluding="rental/" kind="src" path="Project2/MovieRentalGUI/src"/>
 	<classpathentry kind="src" path="Project2/MovieRentalGUI/src/rental"/>
-	<classpathentry kind="lib" path="Project2/MovieRentalGUI/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="Project2/MovieRentalGUI/ojdbc6.jar" sourcepath="Project2/MovieRentalGUI/ojdbc6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="Project2/MovieRentalGUI/bin"/>
 </classpath>
