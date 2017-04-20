@@ -111,9 +111,9 @@ public class CustomerUtilities {
 			}
 
 		} catch (SQLException e){
-			if(e.getMessage().equals("Exhausted Resultset")){
+			if(e.getMessage().equals("Exhausted Resultset"))
 				System.out.println("Sorry! Nothing was found.\nPlease try again!" + "\n");
-			}
+			
 		}
 
 
@@ -148,7 +148,9 @@ public class CustomerUtilities {
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			if(e.getMessage().equals("Exhausted Resultset"))
+				System.out.println("You have no rentals.");
+				
 			e.printStackTrace();
 		}
 
@@ -194,7 +196,9 @@ public class CustomerUtilities {
 			}			
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			if(e.getMessage().equals("Exhausted Resultset"))
+				System.out.println("Cannot find movie with that ID! \nPlease try again!" + "\n");
+			
 			e.printStackTrace();
 		}
 	}
@@ -289,9 +293,6 @@ public class CustomerUtilities {
 				preparedInsert.setString(6, "0");
 				preparedInsert.setDate(7, todaySQL);
 
-				/*System.out.println("rental id\t" + rentalId +"\nmovieID\t\t" + movieID + "\ncustomerID\t" + 
-									custID +"\ndueDate\t" + dueDate.toString() + "\ntoday\t" + todaySQL.toString());
-				 */
 				preparedInsert.executeUpdate();
 
 				//  INSERT a row in the delivery table using the same rental id  
