@@ -36,10 +36,10 @@ public class LogInUtils {
 				
 				
 				// new user
-				/*String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+			/*	String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
 		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");		   		
 				
-				newUser(conn, customerUserName, customerPassword, "Reem", "5147894561");
+				newUser(conn, customerUserName, customerPassword, "ZAHRAA", "5147894561");
 				*/
 			}
 			

@@ -269,6 +269,7 @@ public class CustomerUtilities {
 				ResultSet rentalIdRS = preparedRentalID.executeQuery();
 				rentalIdRS.next();
 				int rentalId = rentalIdRS.getInt(1);
+				
 				// increment the rental id by one to set it for the newest rental 
 				rentalId++;
 
@@ -281,31 +282,30 @@ public class CustomerUtilities {
 				java.sql.Date dueDate = new java.sql.Date(today.getTimeInMillis());
 
 				preparedInsert.setInt(1, rentalId);
-				preparedInsert.setString(2, "ONLINE");
+				preparedInsert.setInt(2, 0);
 				preparedInsert.setString(3, movieID);
 				preparedInsert.setString(4, custID);
 				preparedInsert.setDate(5,  dueDate);
 				preparedInsert.setString(6, "0");
 				preparedInsert.setDate(7, todaySQL);
-				System.out.println("hello!");
 
-				//System.out.println("rental id\t" + rentalId +"\nmovieID\t" + movieID + "\ncustomerID\t" + 
-				//					custID +"\ndueDate\t" + dueDate.toString() + "\ntoday\t" + todaySQL.toString());
-
+				/*System.out.println("rental id\t" + rentalId +"\nmovieID\t\t" + movieID + "\ncustomerID\t" + 
+									custID +"\ndueDate\t" + dueDate.toString() + "\ntoday\t" + todaySQL.toString());
+				 */
 				preparedInsert.executeUpdate();
-				System.out.println("hello again!");
+
 				//  INSERT a row in the delivery table using the same rental id  
 
 				String insertDelivery = "INSERT INTO delivery VALUES(?,?,?)";
 
 				PreparedStatement preparedInDeliv = conn.prepareStatement(insertDelivery);
 				// not sure
-				PreparedStatement preparedCarID = conn.prepareStatement("SELECT MAX(car_id) FROM car");
+				PreparedStatement preparedCarID = conn.prepareStatement("SELECT MAX(plate_number) FROM cars");
 				ResultSet carIdRS = preparedCarID.executeQuery();
-
+				
+				carIdRS.next();
 				int carId = carIdRS.getInt(1);
-				carId++;
-
+			
 				preparedInDeliv.setString(1, custID);
 				preparedInDeliv.setInt(2, carId);
 				preparedInDeliv.setInt(3, rentalId);
@@ -314,13 +314,15 @@ public class CustomerUtilities {
 
 				System.out.println("Thank you for renting!");
 				System.out.println("Your delivery will be coming shortly!");
-				System.out.println("Due date for the movie:\t" + movieID + "\twill be on:\t" + dueDate.getTime());
+				System.out.println("Due date for movie:\t" + movieID + "\twill be on:\t" + dueDate.toString());	
 			}
 
 
 		} catch (SQLException e) {
+			if(e.getMessage().equals("Exhausted Resultset"))
+				System.out.println("Cannot find movie with that ID! \nPlease try again!" + "\n");
+			
 			e.printStackTrace();
-			//System.out.println(e.getMessage());
 		}
 
 
