@@ -27,20 +27,27 @@ public class LogInUtils {
    		try {
 			Connection conn = null;
 			conn = getConnection("A1537595", "database2");
-			if(conn != null){		
+			if(conn != null){	
+				
+				String option = JOptionPane.showInputDialog("Welcome to the movie rentals!\nWould you like to log in or register?\n" +
+															"Enter l - for login\nEnter r - to register");
+				if(option.equals("l")){
 				// for user login
-				// username & password is the ones in the database  to connect to our rental movies info
 				String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
 		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");
 		   		login(conn, customerUserName, customerPassword);			
 				
-				
+				} else if (option.equals("r")) {
 				// new user
-			/*	String customerUserName = JOptionPane.showInputDialog("Enter your movie rental username: ");
+				String customerName = JOptionPane.showInputDialog("Enter your full name: ");
+				String customerAddress = JOptionPane.showInputDialog("Enter your home address:\n(Don't worry, just for delivery purposes!) ");
+				String customerPhone = JOptionPane.showInputDialog("Enter your phone number: ");
+				String customerUserName = JOptionPane.showInputDialog("Pick a movie rental username: ");
 		   		String customerPassword = JOptionPane.showInputDialog("Enter your password: ");		   		
 				
-				newUser(conn, customerUserName, customerPassword, "ZAHRAA", "5147894561");
-				*/
+				newUser(conn, customerUserName, customerPassword, customerName, customerPhone, customerAddress);
+				
+				}
 			}
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -70,7 +77,7 @@ public class LogInUtils {
 
 	//Takes a username and password and creates and account for that user
 	// works as long as we dont initially populate the table from oracle!
-	public static void newUser(Connection conn, String username, String password, String fullName, String phoneNum) throws SQLException, ClassNotFoundException{	
+	public static void newUser(Connection conn, String username, String password, String fullName, String phoneNum, String customerAddress) throws SQLException, ClassNotFoundException{	
 			String salt = getSalt();
 			String query = "INSERT INTO CUSTOMER VALUES(?,?,?,?,?,?)";
 			byte[] hashedPassword = hash(password, salt);
@@ -84,6 +91,7 @@ public class LogInUtils {
 			maxCustID++;
 			
 			PreparedStatement user = conn.prepareStatement(query);
+			PreparedStatement address = conn.prepareStatement("INSERT INTO cust_address VALUES(?,?)");
 			
 			user.setInt(1, maxCustID);
 			user.setString(2, fullName);
@@ -92,7 +100,12 @@ public class LogInUtils {
 			user.setString(5,  salt);
 			user.setString(6, phoneNum);
 			
+			address.setInt(1, maxCustID);
+			address.setString(2, customerAddress);
+			
 			user.executeUpdate();
+			address.executeQuery();
+			
 			System.out.println("New user registered!");
 			conn.close();
 	}			
