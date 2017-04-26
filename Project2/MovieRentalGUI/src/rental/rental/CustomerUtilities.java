@@ -11,6 +11,7 @@ public class CustomerUtilities {
 		System.out.println("Please enter the number for the desired option:");
 		System.out.println("1 - Movie search. \n2 - View your list of rented movies. \n3 - Renew a rented movie's due date. \n4 - View a list of recommended movies.");
 		System.out.println("5 - Rent a movie which we will deliever to you.\n");
+		
 		int userChoice = read.nextInt();
 		loginOptions(conn, userChoice, customerId);
 		if(read.hasNext()){
@@ -37,6 +38,8 @@ public class CustomerUtilities {
 			break;
 		case 5: 
 			PlaceDelivery(conn, customerId);
+
+
 		}
 	}
 
@@ -109,6 +112,7 @@ public class CustomerUtilities {
 				}
 
 			}
+			//loginOptions(conn,custID);
 
 		} catch (SQLException e){
 			if(e.getMessage().equals("Exhausted Resultset"))

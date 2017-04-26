@@ -121,5 +121,28 @@ public class EmployeeUtilities {
 
 
 		}
-	
+
+		public static void NewRental(Connection conn){
+			try{
+				String movieName = "";
+				String custID = "";
+				System.out.println("What is the title of the movie?");
+				Scanner read = new Scanner(System.in);
+				while(read.hasNext()){
+					movieName = read.nextLine();
+				}
+				System.out.println("What is the customerID of the customer:");
+				while(read.hasNext()){
+					custID = read.nextLine();
+				}
+				String getMovieIDQuery = "SELECT movie_id from movie where title = ?";
+				PreparedStatement getMId = conn.prepareStatement(getMovieIDQuery);
+				getMId.setString(1, movieName);
+				ResultSet MIDRS = getMId.executeQuery();
+			}
+			catch(SQLException e){
+				
+			}
+		}
+		
 }
