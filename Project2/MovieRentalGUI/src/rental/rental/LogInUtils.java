@@ -20,10 +20,7 @@ public class LogInUtils {
 		askForLogIn();
 	}
 	
-	public static void askForLogIn(){
-  	//	String username = JOptionPane.showInputDialog("Enter your oracle username: ");
-   		//String password = JOptionPane.showInputDialog("Enter your password: ");
-   		
+	public static void askForLogIn(){   		
    		try {
 			Connection conn = null;
 			conn = getConnection("A1537595", "database2");
@@ -110,23 +107,6 @@ public class LogInUtils {
 			conn.close();
 	}			
 	
-	//Prompts the user to input a username and password, and creates an account for that user.
-	/*
-	public static void newUser() throws SQLException, ClassNotFoundException{	
-		Scanner sc = new Scanner(System.in);
-		
-		System.out.println("Enter your username: ");
-		String username = sc.nextLine();
-		//System.out.println(username);	
-		
-		System.out.println("Enter your password: ");
-		String password = sc.nextLine();
-		//System.out.println(password);	
-		
-		newUser(username, password);
-	}
-	*/
-	
 	//Takes a username and password returns true if they belong to a valid user
 	public static void login(Connection conn, String username, String password)throws SQLException, ClassNotFoundException{
 		try {
@@ -162,31 +142,15 @@ public class LogInUtils {
 					CustomerUtilities.loginOptions(conn, customerID);
 				
 				else if(user.isEmpty()) 
-				//System.exit(0);
 					System.out.println("Log in failed! Incorrect username or password");
 				}
 			} catch (SQLException e){
 				if(e.getMessage().equals("Exhausted Resultset"))
 					System.out.println("Cannot find username!");						
 			}
-		}
-	
-		//System.exit(0);
+	}
 	
 	
-	
-	//Prompts the user to input their login info, returns true if they are a valid user, false otherwise
-	
-	/*public static boolean login() throws SQLException, ClassNotFoundException{
-		
-		String username = JOptionPane.showInputDialog("Enter your username: ");
-		String password = JOptionPane.showInputDialog("Enter your password: ");
-		
-		boolean result = login(username, password);
-		
-		return result;
-	}	
-	*/
 	//Helper Functions below:
 	//getConnection() - obtains a connection
 	//getSalt() - creates a randomly generated string 
